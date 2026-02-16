@@ -38,11 +38,9 @@ export const config = {
 
   // Test pages to audit (customize these for your instance)
   testPages: [
-    '/now/nav/ui/classic/params/target/incident_list.do',
-    '/now/nav/ui/classic/params/target/problem_list.do',
-    '/now/nav/ui/classic/params/target/change_request_list.do',
-    '/$pa_dashboard.do',
-    '/now/workspace/agent/record/incident/new'
+    '/now/sow/home',
+    '/now/sow/list',
+    '/now/sow/record/sc_req_item/aec79906eb43011008f2951ff15228f0'
   ],
 
   // Custom patterns to detect (non-Horizon implementations)

@@ -5,7 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "node tests/horizon-validator.js",
-    "test:components": "node tests/component-audit.js"
+    "test:components": "node tests/component-audit.js",
+    "diagnostic": "node tests/diagnostic.js"
   },
   "keywords": [
     "servicenow",

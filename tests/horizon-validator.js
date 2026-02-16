@@ -1,6 +1,8 @@
 import puppeteer from 'puppeteer';
 import { config } from '../config.js';
 import { loginToServiceNow } from '../utils/auth.js';
+import fs from 'fs';
+import path from 'path';
 
 /**
  * Sleep utility function (replacement for deprecated page.waitForTimeout)
@@ -9,33 +11,106 @@ import { loginToServiceNow } from '../utils/auth.js';
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 /**
- * Audit Horizon components on a page
+ * Create timestamped screenshot directory
+ * @returns {string} Path to the screenshot directory
+ */
+function createScreenshotDirectory() {
+  const now = new Date();
+  const timestamp = now.toISOString()
+    .replace(/:/g, '-')
+    .replace(/\..+/, '')
+    .replace('T', '_');
+
+  const screenshotDir = path.join(process.cwd(), 'screenshots', timestamp);
+
+  if (!fs.existsSync(screenshotDir)) {
+    fs.mkdirSync(screenshotDir, { recursive: true });
+  }
+
+  console.log(`📁 Screenshots will be saved to: ${screenshotDir}\n`);
+  return screenshotDir;
+}
+
+/**
+ * Save screenshot of current page
+ * @param {import('puppeteer').Page} page - Puppeteer page instance
+ * @param {string} screenshotDir - Directory to save screenshots
+ * @param {string} pageName - Name for the screenshot file
+ */
+async function saveScreenshot(page, screenshotDir, pageName) {
+  const sanitizedName = pageName
+    .replace(/\//g, '_')
+    .replace(/[^a-zA-Z0-9_-]/g, '')
+    .replace(/^_+|_+$/g, '');
+
+  const screenshotPath = path.join(screenshotDir, `${sanitizedName}.png`);
+
+  await page.screenshot({
+    path: screenshotPath,
+    fullPage: true
+  });
+
+  console.log(`📸 Screenshot saved: ${sanitizedName}.png`);
+  return screenshotPath;
+}
+
+/**
+ * Audit Horizon components on a page (including Shadow DOM)
  * @param {import('puppeteer').Page} page - Puppeteer page instance
  */
 async function auditHorizonComponents(page) {
-  console.log('\n📊 Auditing Horizon components...');
+  console.log('\n📊 Auditing Horizon components (including Shadow DOM)...');
 
-  const results = {};
+  const results = await page.evaluate((horizonComponents) => {
+    const componentResults = {};
 
-  for (const component of config.horizonComponents) {
-    const count = await page.$$eval(component, elements => elements.length);
+    // Function to recursively search inside shadow DOMs
+    function searchInShadowDOM(root, componentName) {
+      let found = [];
 
-    if (count > 0) {
-      // Get sample attributes/styles from first instance
-      const details = await page.$eval(component, el => ({
-        tagName: el.tagName.toLowerCase(),
-        classes: el.className,
-        attributes: Array.from(el.attributes).map(attr => `${attr.name}="${attr.value}"`).join(' ')
-      }));
+      // Search in current root
+      const elements = root.querySelectorAll(componentName);
+      found.push(...Array.from(elements));
 
-      results[component] = {
-        count,
-        details
-      };
+      // Search in all shadow roots
+      const allElements = root.querySelectorAll('*');
+      allElements.forEach(el => {
+        if (el.shadowRoot) {
+          found.push(...searchInShadowDOM(el.shadowRoot, componentName));
+        }
+      });
 
-      console.log(`  ✅ ${component}: ${count} instance(s) found`);
+      return found;
     }
-  }
+
+    horizonComponents.forEach(componentName => {
+      const elementsInMain = document.querySelectorAll(componentName);
+      const elementsInShadow = searchInShadowDOM(document, componentName);
+      const allElements = [...elementsInMain, ...elementsInShadow];
+
+      if (allElements.length > 0) {
+        const firstElement = allElements[0];
+        componentResults[componentName] = {
+          count: allElements.length,
+          countInMain: elementsInMain.length,
+          countInShadow: elementsInShadow.length,
+          details: {
+            tagName: firstElement.tagName.toLowerCase(),
+            classes: firstElement.className,
+            attributes: Array.from(firstElement.attributes).map(attr => `${attr.name}="${attr.value}"`).join(' '),
+            hasShadowRoot: firstElement.shadowRoot ? true : false
+          }
+        };
+      }
+    });
+
+    return componentResults;
+  }, config.horizonComponents);
+
+  // Log results
+  Object.entries(results).forEach(([component, data]) => {
+    console.log(`  ✅ ${component}: ${data.count} total (Main: ${data.countInMain}, Shadow DOM: ${data.countInShadow})`);
+  });
 
   return results;
 }
@@ -109,6 +184,9 @@ async function runValidation() {
   try {
     const page = await browser.newPage();
 
+    // Create timestamped screenshot directory
+    const screenshotDir = createScreenshotDirectory();
+
     // Login to ServiceNow
     await loginToServiceNow(page);
 
@@ -128,6 +206,9 @@ async function runValidation() {
 
         // Wait for components to load
         await sleep(config.timeouts.componentLoad);
+
+        // Save screenshot
+        await saveScreenshot(page, screenshotDir, testPage);
 
         // Audit Horizon components
         const horizonResults = await auditHorizonComponents(page);

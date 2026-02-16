@@ -1,0 +1,23 @@
+{
+  "name": "servicenow-horizon-validator",
+  "version": "1.0.0",
+  "description": "Automated testing tool using Puppeteer to validate Horizon Design System implementation across ServiceNow instances",
+  "type": "module",
+  "scripts": {
+    "test": "node tests/horizon-validator.js",
+    "test:components": "node tests/component-audit.js"
+  },
+  "keywords": [
+    "servicenow",
+    "puppeteer",
+    "testing",
+    "design-system",
+    "horizon"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "puppeteer": "^24.0.0"
+  }
+}

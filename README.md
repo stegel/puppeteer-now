@@ -1,6 +1,6 @@
 # ServiceNow Horizon Design System Validator
 
-Automated testing tool using Puppeteer to validate Horizon Design System implementation across ServiceNow instances. Detects proper component usage, identifies custom/non-Horizon patterns, and audits design system compliance.
+Automated testing tool using Puppeteer to validate Horizon Design System implementation across ServiceNow instances. Detects proper component usage, identifies custom/non-Horizon patterns, and audits design system compliance. **Now with Figma integration for design-to-implementation comparison!**
 
 ## Quick Start
 
@@ -34,25 +34,52 @@ npm test
 
 # Run deep component audit on first test page
 npm run test:components
+
+# Run diagnostic analysis
+npm run diagnostic
+
+# Compare to Figma design system
+npm run compare-figma <figma-file-url>
 ```
 
 ## Features
 
-### Horizon Component Validation
+### ✅ Horizon Component Validation
 - Detects all Horizon Design System components (now-button, now-input, etc.)
+- **Recursively searches Shadow DOM** for nested components
 - Counts component usage across pages
-- Extracts component attributes and styles
+- Extracts component attributes, variants, and states
+- Works with macroponent and seismic-hoist wrappers
 
-### Custom Pattern Detection
+### 🎨 Figma Design System Comparison
+- Extracts live component implementations from ServiceNow
+- Integrates with Figma MCP for design system access
+- Compares implementation vs design specifications
+- Identifies variant mismatches and deviations
+- Generates detailed comparison reports
+
+### 📸 Screenshot Capture
+- Automatic full-page screenshots for every page tested
+- Timestamped folders (YYYY-MM-DD_HH-MM-SS)
+- Stored in `./screenshots` directory
+- Useful for visual regression testing
+
+### 🔍 Custom Pattern Detection
 - Identifies non-Horizon UI elements (custom buttons, inputs, etc.)
 - Reports compliance violations
-- Helps migration planning
+- Helps migration planning from legacy UI
 
-### Deep Component Audit
-- Walks entire DOM tree
+### 📊 Deep Component Audit
+- Walks entire DOM tree (including Shadow DOM)
 - Extracts component hierarchy and relationships
 - Analyzes usage patterns
 - Generates detailed inventory reports
+
+### 🔬 Diagnostic Analysis
+- Analyzes page structure and Shadow DOM
+- Detects custom elements and UI frameworks
+- Identifies ServiceNow UI patterns (Polaris, Seismic, etc.)
+- Provides recommendations for validator configuration
 
 ## Configuration
 
@@ -70,11 +97,19 @@ servicenow-horizon-validator/
 ├── config.js              # Central configuration
 ├── package.json           # Dependencies and scripts
 ├── .env                   # Environment variables (not in git)
+├── .claude/
+│   └── skills/           # Claude Code skills
+│       ├── validate-horizon.md
+│       └── compare-to-figma.md
 ├── tests/
 │   ├── horizon-validator.js   # Main validation runner
-│   └── component-audit.js     # Deep component analysis
-└── utils/
-    └── auth.js            # ServiceNow authentication
+│   ├── component-audit.js     # Deep component analysis
+│   ├── diagnostic.js          # Page structure analysis
+│   └── compare-to-figma.js    # Figma comparison tool
+├── utils/
+│   └── auth.js            # ServiceNow authentication
+├── screenshots/           # Timestamped screenshots (generated)
+└── reports/              # Comparison reports (generated)
 ```
 
 ## Example Output
@@ -82,30 +117,64 @@ servicenow-horizon-validator/
 ### Validation Report
 ```
 ============================================================
-📋 COMPLIANCE REPORT: /now/workspace/agent/record/incident/new
+📋 COMPLIANCE REPORT: /now/sow/home
 ============================================================
 
-✅ Horizon components detected: 8 types
-⚠️ Custom/non-Horizon elements: 3 total
+✅ Horizon components detected: 11 types (97 total)
+⚠️ Custom/non-Horizon elements: 0 total
 
-👍 GOOD. Mostly using Horizon, but some custom elements detected.
+🎉 EXCELLENT! This page is fully Horizon-compliant!
 ============================================================
 ```
 
 ### Component Inventory
 ```
-📦 COMPONENT INVENTORY REPORT
-================================================================================
-📊 Total Horizon components: 47
-📊 Unique component types: 8
-
-🔷 NOW-BUTTON (12 instances)
-  Instance #1:
-    Parent: <div>
-    Attributes:
-      variant="primary"
-      size="md"
+📊 Auditing Horizon components (including Shadow DOM)...
+  ✅ now-button: 5 total (Main: 0, Shadow DOM: 5)
+  ✅ now-input: 1 total (Main: 0, Shadow DOM: 1)
+  ✅ now-dropdown: 6 total (Main: 0, Shadow DOM: 6)
+  ✅ now-icon: 47 total (Main: 0, Shadow DOM: 47)
+  ✅ now-tabs: 2 total (Main: 0, Shadow DOM: 2)
 ```
+
+## Shadow DOM Support
+
+ServiceNow's Horizon components are nested inside Shadow DOM. This tool:
+1. Recursively traverses all Shadow DOM trees
+2. Searches inside macroponent wrappers
+3. Pierces seismic-hoist elements
+4. Finds deeply nested Horizon components
+
+**Without Shadow DOM support:** 0 components detected
+**With Shadow DOM support:** 97+ components detected ✅
+
+## Figma Integration (Claude Skills)
+
+This project includes Claude Code skills for Figma integration:
+
+### Using the Skills
+
+In Claude Code, you can say:
+- "Compare the Service Operations Workspace to our Figma design system"
+- "Validate our now-button implementations against Figma"
+- "Check if the incident form matches the Figma specs"
+
+### Manual Comparison Workflow
+
+1. Run the comparison tool:
+```bash
+npm run compare-figma https://www.figma.com/file/your-file-id
+```
+
+2. The tool generates:
+   - Component inventory JSON
+   - Screenshots
+   - Markdown report with Figma integration instructions
+
+3. Use Claude with Figma MCP to:
+   - Fetch Figma design system components
+   - Compare variants, properties, and states
+   - Generate detailed compliance report
 
 ## Customization
 
@@ -115,8 +184,8 @@ Edit `config.js`:
 
 ```javascript
 testPages: [
-  '/your/custom/page.do',
-  '/another/page.do'
+  '/now/sow/home',
+  '/your/custom/page.do'
 ]
 ```
 
@@ -144,11 +213,22 @@ puppeteerOptions: {
 Set `headless: false` in `config.js` to see browser actions in real-time.
 
 ### Extend Functionality
-- Add screenshot capture for visual regression
+- Add screenshot comparison between runs
 - Export reports to JSON/CSV
 - Integrate with CI/CD pipeline
 - Add accessibility compliance checks
+- Create visual regression testing
+
+## Requirements
+
+- Node.js 18+ or 20+
+- ServiceNow instance with Horizon Design System
+- (Optional) Figma MCP server for design comparison
 
 ## License
 
 MIT
+
+## Contributing
+
+Contributions welcome! This tool supports the Design Linting and Automated UI Testing initiatives.

@@ -40,7 +40,8 @@ export const config = {
   testPages: [
     '/now/sow/home',
     '/now/sow/list',
-    '/now/sow/record/sc_req_item/aec79906eb43011008f2951ff15228f0'
+    '/now/sow/record/sc_req_item/aec79906eb43011008f2951ff15228f0',
+    '/now/alignment-workspace/portfolio-plans'
   ],
 
   // Custom patterns to detect (non-Horizon implementations)

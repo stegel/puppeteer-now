@@ -7,7 +7,9 @@
     "test": "node tests/horizon-validator.js",
     "test:components": "node tests/component-audit.js",
     "diagnostic": "node tests/diagnostic.js",
-    "compare-figma": "node tests/compare-to-figma.js"
+    "compare-figma": "node tests/compare-to-figma.js",
+    "visual-compare": "node tests/visual-comparison.js",
+    "extract-enhanced": "node tests/enhanced-extraction.js"
   },
   "keywords": [
     "servicenow",

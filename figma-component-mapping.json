@@ -1,0 +1,190 @@
+{
+  "fileKey": "eB8K8rmfYgbAGaQh2Q1VZ9",
+  "fileName": "Next Experience Components",
+  "componentMapping": {
+    "now-button": {
+      "figmaPageName": "Button",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "28:12",
+      "variants": [
+        "primary",
+        "secondary",
+        "tertiary",
+        "destructive",
+        "ghost"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg"
+      ]
+    },
+    "now-input": {
+      "figmaPageName": "Input",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "406:2831",
+      "variants": [
+        "default",
+        "error"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg"
+      ]
+    },
+    "now-dropdown": {
+      "figmaPageName": "Dropdown",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "66262:2794",
+      "variants": [
+        "default",
+        "secondary",
+        "tertiary"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg"
+      ]
+    },
+    "now-modal": {
+      "figmaPageName": "Modal",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "36:8584",
+      "variants": [
+        "default"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg",
+        "xl",
+        "full"
+      ]
+    },
+    "now-tabs": {
+      "figmaPageName": "Tabs",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "75704:43803",
+      "variants": [
+        "default",
+        "pills",
+        "vertical"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg"
+      ]
+    },
+    "now-toggle": {
+      "figmaPageName": "Toggle",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "39097:147686",
+      "variants": [
+        "default"
+      ],
+      "sizes": [
+        "sm",
+        "md"
+      ]
+    },
+    "now-avatar": {
+      "figmaPageName": "Avatar",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "199:11420",
+      "variants": [
+        "default"
+      ],
+      "sizes": [
+        "xs",
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ]
+    },
+    "now-icon": {
+      "figmaPageName": "Icon",
+      "figmaPageId": null,
+      "figmaComponentNodeId": null,
+      "variants": [
+        "default"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ]
+    },
+    "now-tooltip": {
+      "figmaPageName": "Tooltip",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "81:4168",
+      "variants": [
+        "default",
+        "error",
+        "warning",
+        "info"
+      ],
+      "sizes": [
+        "default"
+      ]
+    },
+    "now-popover": {
+      "figmaPageName": "Popover",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "54672:180749",
+      "variants": [
+        "default"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg"
+      ]
+    },
+    "now-loader": {
+      "figmaPageName": "Loader",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "550:50731",
+      "variants": [
+        "spinner",
+        "inline",
+        "overlay"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg"
+      ]
+    }
+  },
+  "instructions": {
+    "setup": [
+      "1. Open the Figma file in Figma Desktop",
+      "2. For each component type (Button, Input, etc.), navigate to that page",
+      "3. Select the main component frame",
+      "4. Note the node ID from the selection (shown in URL or properties)",
+      "5. Update the figmaComponentNodeId in this mapping file"
+    ],
+    "usage": [
+      "1. Run: npm run extract-enhanced to get ServiceNow component data",
+      "2. For each component, use the mapping to find the Figma page",
+      "3. In Figma Desktop, select the component on that page",
+      "4. Use Figma MCP get_screenshot to capture the design",
+      "5. Compare ServiceNow screenshot vs Figma screenshot"
+    ],
+    "automatedComparison": [
+      "Once node IDs are filled in, you can use:",
+      "Claude: 'Compare now-button implementation to Figma'",
+      "Claude will:",
+      "  - Get ServiceNow component data from extraction",
+      "  - Use figmaComponentNodeId to fetch Figma specs",
+      "  - Compare variants, sizes, and attributes",
+      "  - Generate side-by-side comparison report"
+    ]
+  }
+}

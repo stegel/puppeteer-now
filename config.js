@@ -41,7 +41,8 @@ export const config = {
     '/now/sow/home',
     '/now/sow/list',
     '/now/sow/record/sc_req_item/aec79906eb43011008f2951ff15228f0',
-    '/now/alignment-workspace/portfolio-plans'
+    '/now/alignment-workspace/portfolio-plans',
+    '/now/alignment-workspace/portfolio-plans/sub/create-new-portfolio-plan'
   ],
 
   // Custom patterns to detect (non-Horizon implementations)
@@ -54,7 +55,7 @@ export const config = {
 
   // Puppeteer configuration
   puppeteerOptions: {
-    headless: false, // Set to true for CI/CD
+    headless: true, // Set to true for CI/CD
     defaultViewport: {
       width: 1920,
       height: 1080

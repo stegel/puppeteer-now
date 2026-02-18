@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 import { config } from '../config.js';
 import { loginToServiceNow } from '../utils/auth.js';
+import { getLocalTimestamp } from '../utils/timestamp.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -10,11 +11,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
  * Create visual comparison directory
  */
 function createVisualComparisonDirectory() {
-  const now = new Date();
-  const timestamp = now.toISOString()
-    .replace(/:/g, '-')
-    .replace(/\..+/, '')
-    .replace('T', '_');
+  const timestamp = getLocalTimestamp();
 
   const comparisonDir = path.join(process.cwd(), 'reports', 'visual-comparison', timestamp);
 

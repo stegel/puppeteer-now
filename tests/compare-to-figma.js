@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 import { config } from '../config.js';
 import { loginToServiceNow } from '../utils/auth.js';
+import { getLocalTimestamp, getReadableTimestamp } from '../utils/timestamp.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -10,11 +11,7 @@ const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
  * Create timestamped report directory
  */
 function createReportDirectory() {
-  const now = new Date();
-  const timestamp = now.toISOString()
-    .replace(/:/g, '-')
-    .replace(/\..+/, '')
-    .replace('T', '_');
+  const timestamp = getLocalTimestamp();
 
   const reportDir = path.join(process.cwd(), 'reports', timestamp);
 
@@ -159,7 +156,7 @@ function generateMarkdownReport(reportDir, pageUrl, components, figmaData) {
   let report = `# Horizon Design System Comparison Report
 
 **Page:** ${pageUrl}
-**Date:** ${new Date().toISOString()}
+**Date:** ${getReadableTimestamp()}
 **Total Components:** ${totalComponents}
 **Component Types:** ${componentTypes}
 

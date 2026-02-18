@@ -9,7 +9,8 @@
     "diagnostic": "node tests/diagnostic.js",
     "compare-figma": "node tests/compare-to-figma.js",
     "visual-compare": "node tests/visual-comparison.js",
-    "extract-enhanced": "node tests/enhanced-extraction.js"
+    "extract-enhanced": "node tests/enhanced-extraction.js",
+    "update-mapping": "node scripts/update-mapping.js"
   },
   "keywords": [
     "servicenow",

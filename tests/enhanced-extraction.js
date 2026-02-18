@@ -1,6 +1,7 @@
 import puppeteer from 'puppeteer';
 import { config } from '../config.js';
 import { loginToServiceNow } from '../utils/auth.js';
+import { getLocalTimestamp, getReadableTimestamp, getLocalISOTimestamp } from '../utils/timestamp.js';
 import fs from 'fs';
 import path from 'path';
 
@@ -171,7 +172,7 @@ function generateEnhancedReport(reportDir, pageUrl, components) {
   let report = `# Enhanced Horizon Component Analysis
 
 **Page:** ${pageUrl}
-**Date:** ${new Date().toISOString()}
+**Date:** ${getReadableTimestamp()}
 **Total Components:** ${totalComponents}
 **Component Types:** ${Object.keys(components).length}
 
@@ -309,8 +310,7 @@ async function runEnhancedExtraction() {
     process.exit(1);
   }
 
-  const reportDir = path.join(process.cwd(), 'reports', 'enhanced-' +
-    new Date().toISOString().replace(/:/g, '-').replace(/\..+/, '').replace('T', '_'));
+  const reportDir = path.join(process.cwd(), 'reports', 'enhanced-' + getLocalTimestamp());
 
   if (!fs.existsSync(reportDir)) {
     fs.mkdirSync(reportDir, { recursive: true });

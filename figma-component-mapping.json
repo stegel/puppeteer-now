@@ -10,13 +10,22 @@
         "primary",
         "secondary",
         "tertiary",
-        "destructive",
-        "ghost"
+        "primary-positive",
+        "secondary-positive",
+        "primary-negative",
+        "secondary-negative"
       ],
       "sizes": [
         "sm",
         "md",
         "lg"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "pressed",
+        "focus",
+        "disabled"
       ]
     },
     "now-input": {
@@ -38,9 +47,8 @@
       "figmaPageId": null,
       "figmaComponentNodeId": "66262:2794",
       "variants": [
-        "default",
-        "secondary",
-        "tertiary"
+        "label-start",
+        "label-top"
       ],
       "sizes": [
         "sm",
@@ -58,9 +66,7 @@
       "sizes": [
         "sm",
         "md",
-        "lg",
-        "xl",
-        "full"
+        "lg"
       ]
     },
     "now-tabs": {
@@ -95,7 +101,9 @@
       "figmaPageId": null,
       "figmaComponentNodeId": "199:11420",
       "variants": [
-        "default"
+        "image",
+        "initials",
+        "icon"
       ],
       "sizes": [
         "xs",
@@ -123,12 +131,7 @@
       "figmaPageName": "Tooltip",
       "figmaPageId": null,
       "figmaComponentNodeId": "81:4168",
-      "variants": [
-        "default",
-        "error",
-        "warning",
-        "info"
-      ],
+      "variants": [],
       "sizes": [
         "default"
       ]
@@ -144,21 +147,165 @@
         "sm",
         "md",
         "lg"
+      ],
+      "primaryPosition": [
+        "top",
+        "bottom",
+        "left",
+        "right"
+      ],
+      "secondaryPosition": [
+        "start",
+        "center",
+        "end"
+      ]
+    },
+    "now-checkbox": {
+      "figmaPageName": "Checkbox",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "292:15395",
+      "variants": [
+        "default",
+        "error"
+      ],
+      "sizes": [
+        "sm",
+        "md"
+      ],
+      "states": [
+        "unchecked",
+        "checked",
+        "indeterminate",
+        "disabled"
+      ]
+    },
+    "now-radio": {
+      "figmaPageName": "Radio",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "59649:967",
+      "variants": [
+        "default"
+      ],
+      "sizes": [
+        "sm",
+        "md"
+      ],
+      "orientation": [
+        "vertical",
+        "horizontal"
+      ]
+    },
+    "now-badge": {
+      "figmaPageName": "Badge",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "30:4822",
+      "variants": [
+        "critical",
+        "high",
+        "caution",
+        "moderate",
+        "informational",
+        "positive",
+        "neutral"
+      ],
+      "sizes": [
+        "sm",
+        "md"
+      ]
+    },
+    "now-progress": {
+      "figmaPageName": "Progress",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "39031:148411",
+      "variants": [
+        "default"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ]
+    },
+    "now-alert": {
+      "figmaPageName": "Alert",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "56249:180916",
+      "variants": [
+        "critical",
+        "high",
+        "caution",
+        "moderate",
+        "informational",
+        "positive",
+        "neutral"
+      ],
+      "sizes": [
+        "default"
+      ],
+      "actionType": [
+        "action",
+        "dismissible"
+      ]
+    },
+    "now-card": {
+      "figmaPageName": "Card",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "54110:179946",
+      "variants": [
+        "default"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg",
+        "xl"
+      ],
+      "states": [
+        "default",
+        "hover",
+        "active"
+      ],
+      "shadow": [
+        "visible",
+        "hidden"
+      ],
+      "sidebar": [
+        "with",
+        "without"
+      ]
+    },
+    "now-textarea": {
+      "figmaPageName": "Textarea",
+      "figmaPageId": null,
+      "figmaComponentNodeId": "549:50529",
+      "variants": [
+        "default",
+        "error",
+        "success"
+      ],
+      "sizes": [
+        "sm",
+        "md",
+        "lg"
       ]
     },
     "now-loader": {
       "figmaPageName": "Loader",
       "figmaPageId": null,
       "figmaComponentNodeId": "550:50731",
-      "variants": [
-        "spinner",
-        "inline",
-        "overlay"
-      ],
       "sizes": [
         "sm",
         "md",
         "lg"
+      ],
+      "label": [
+        "true",
+        "false"
+      ],
+      "action": [
+        "true",
+        "false"
       ]
     }
   },

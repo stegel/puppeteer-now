@@ -29,7 +29,6 @@ export const config = {
     'now-radio',
     'now-popover',
     'now-tooltip',
-    'now-table',
     'now-avatar',
     'now-badge',
     'now-progress',

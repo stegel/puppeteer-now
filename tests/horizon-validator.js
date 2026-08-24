@@ -4,6 +4,10 @@ import { loginToServiceNow } from '../utils/auth.js';
 import { getLocalTimestamp } from '../utils/timestamp.js';
 import fs from 'fs';
 import path from 'path';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const figmaMapping = require('../figma-component-mapping.json');
 
 /**
  * Sleep utility function (replacement for deprecated page.waitForTimeout)
@@ -138,25 +142,164 @@ async function findCustomPatterns(page) {
 }
 
 /**
+ * Validate found Horizon components against their Figma specs (variants + sizes)
+ * @param {import('puppeteer').Page} page - Puppeteer page instance
+ * @param {Object} auditResults - Output of auditHorizonComponents
+ */
+async function validateComponentSpecs(page, auditResults) {
+  console.log('\n🔬 Validating component specs against Figma mapping...');
+
+  const specViolations = {};
+
+  for (const componentName of Object.keys(auditResults)) {
+    const spec = figmaMapping.componentMapping[componentName];
+    if (!spec || !spec.figmaComponentNodeId) continue;
+
+    const violations = await page.evaluate((componentName, spec) => {
+      const variantPatterns = ['primary', 'secondary', 'tertiary', 'destructive', 'ghost',
+        'default', 'error', 'warning', 'info', 'success', 'bare', 'iconic', 'filled', 'outlined', 'text'];
+      const sizePatterns = ['xs', 'sm', 'md', 'lg', 'xl', '2xl', 'full'];
+
+      function getClassVariants(el) {
+        const target = el.shadowRoot?.querySelector('button, input, textarea, div[class]') || el;
+        const classes = (target.className || '').split(/\s+/);
+        return {
+          variants: classes.filter(c => c.startsWith('-')).map(c => c.slice(1)).filter(c => variantPatterns.includes(c)),
+          sizes: classes.filter(c => c.startsWith('-')).map(c => c.slice(1)).filter(c => sizePatterns.includes(c))
+        };
+      }
+
+      function searchShadowDOM(root, selector) {
+        const found = [...root.querySelectorAll(selector)];
+        root.querySelectorAll('*').forEach(el => {
+          if (el.shadowRoot) found.push(...searchShadowDOM(el.shadowRoot, selector));
+        });
+        return found;
+      }
+
+      const elements = searchShadowDOM(document, componentName);
+      const issues = [];
+
+      elements.forEach((el, i) => {
+        const label = `Instance ${i + 1}`;
+        const { variants, sizes } = getClassVariants(el);
+
+        const invalidVariants = variants.filter(v => !spec.variants.includes(v));
+        const invalidSizes = sizes.filter(s => !spec.sizes.includes(s));
+
+        if (invalidVariants.length > 0) {
+          issues.push(`${label}: invalid variant(s) "${invalidVariants.join(', ')}" — expected one of [${spec.variants.join(', ')}]`);
+        }
+        if (invalidSizes.length > 0) {
+          issues.push(`${label}: invalid size(s) "${invalidSizes.join(', ')}" — expected one of [${spec.sizes.join(', ')}]`);
+        }
+
+        // shadow: check attribute value against spec.shadow if defined
+        if (spec.shadow) {
+          const shadowVal = el.getAttribute('shadow');
+          if (shadowVal !== null && !spec.shadow.includes(shadowVal)) {
+            issues.push(`${label}: invalid shadow "${shadowVal}" — expected one of [${spec.shadow.join(', ')}]`);
+          }
+        }
+
+        // sidebar: check attribute value against spec.sidebar if defined
+        if (spec.sidebar) {
+          const sidebarVal = el.getAttribute('sidebar');
+          if (sidebarVal !== null && !spec.sidebar.includes(sidebarVal)) {
+            issues.push(`${label}: invalid sidebar "${sidebarVal}" — expected one of [${spec.sidebar.join(', ')}]`);
+          }
+        }
+
+        // actionType: check attribute value against spec.actionType if defined
+        if (spec.actionType) {
+          const actionTypeVal = el.getAttribute('action-type');
+          if (actionTypeVal !== null && !spec.actionType.includes(actionTypeVal)) {
+            issues.push(`${label}: invalid action-type "${actionTypeVal}" — expected one of [${spec.actionType.join(', ')}]`);
+          }
+        }
+
+        // orientation: check attribute value against spec.orientation if defined
+        if (spec.orientation) {
+          const orientationVal = el.getAttribute('orientation');
+          if (orientationVal !== null && !spec.orientation.includes(orientationVal)) {
+            issues.push(`${label}: invalid orientation "${orientationVal}" — expected one of [${spec.orientation.join(', ')}]`);
+          }
+        }
+
+        // label: check attribute value against spec.label if defined
+        if (spec.label) {
+          const labelVal = el.getAttribute('label');
+          if (labelVal !== null && !spec.label.includes(labelVal)) {
+            issues.push(`${label}: invalid label "${labelVal}" — expected one of [${spec.label.join(', ')}]`);
+          }
+        }
+
+        // action: check attribute value against spec.action if defined
+        if (spec.action) {
+          const actionVal = el.getAttribute('action');
+          if (actionVal !== null && !spec.action.includes(actionVal)) {
+            issues.push(`${label}: invalid action "${actionVal}" — expected one of [${spec.action.join(', ')}]`);
+          }
+        }
+
+        // primaryPosition: check attribute value against spec.primaryPosition if defined
+        if (spec.primaryPosition) {
+          const primaryPositionVal = el.getAttribute('primary-position');
+          if (primaryPositionVal !== null && !spec.primaryPosition.includes(primaryPositionVal)) {
+            issues.push(`${label}: invalid primary-position "${primaryPositionVal}" — expected one of [${spec.primaryPosition.join(', ')}]`);
+          }
+        }
+
+        // secondaryPosition: check attribute value against spec.secondaryPosition if defined
+        if (spec.secondaryPosition) {
+          const secondaryPositionVal = el.getAttribute('secondary-position');
+          if (secondaryPositionVal !== null && !spec.secondaryPosition.includes(secondaryPositionVal)) {
+            issues.push(`${label}: invalid secondary-position "${secondaryPositionVal}" — expected one of [${spec.secondaryPosition.join(', ')}]`);
+          }
+        }
+      });
+
+      return issues;
+    }, componentName, spec);
+
+    if (violations.length > 0) {
+      specViolations[componentName] = violations;
+      console.log(`  ❌ ${componentName}: ${violations.length} spec violation(s)`);
+      violations.forEach(v => console.log(`     → ${v}`));
+    } else {
+      console.log(`  ✅ ${componentName}: spec compliant`);
+    }
+  }
+
+  return specViolations;
+}
+
+/**
  * Generate compliance report
  * @param {Object} horizonResults - Horizon component audit results
  * @param {Object} customResults - Custom pattern findings
+ * @param {Object} specViolations - Figma spec violations
+ * @param {string} pageUrl - Page URL being audited
  */
-function generateReport(horizonResults, customResults, pageUrl) {
+function generateReport(horizonResults, customResults, specViolations, pageUrl) {
   console.log('\n' + '='.repeat(60));
   console.log(`📋 COMPLIANCE REPORT: ${pageUrl}`);
   console.log('='.repeat(60));
 
   const horizonCount = Object.keys(horizonResults).length;
   const customCount = Object.values(customResults).reduce((sum, count) => sum + count, 0);
+  const specViolationCount = Object.keys(specViolations).length;
 
   console.log(`\n✅ Horizon components detected: ${horizonCount} types`);
   console.log(`⚠️ Custom/non-Horizon elements: ${customCount} total`);
+  console.log(`🔬 Figma spec violations: ${specViolationCount} component(s)`);
 
-  if (horizonCount > 0 && customCount === 0) {
+  if (horizonCount > 0 && customCount === 0 && specViolationCount === 0) {
     console.log('\n🎉 EXCELLENT! This page is fully Horizon-compliant!');
-  } else if (horizonCount > customCount) {
+  } else if (horizonCount > customCount && specViolationCount === 0) {
     console.log('\n👍 GOOD. Mostly using Horizon, but some custom elements detected.');
+  } else if (specViolationCount > 0) {
+    console.log('\n⚠️ WARNING. Horizon components found but some violate Figma specs.');
   } else if (customCount > 0) {
     console.log('\n⚠️ WARNING. Significant custom elements detected. Consider migrating to Horizon.');
   }
@@ -213,8 +356,11 @@ async function runValidation() {
         // Find custom patterns
         const customResults = await findCustomPatterns(page);
 
+        // Validate against Figma specs
+        const specViolations = await validateComponentSpecs(page, horizonResults);
+
         // Generate report
-        generateReport(horizonResults, customResults, testPage);
+        generateReport(horizonResults, customResults, specViolations, testPage);
 
       } catch (error) {
         console.error(`❌ Error testing page ${testPage}:`, error.message);

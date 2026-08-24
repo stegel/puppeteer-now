@@ -4,3 +4,4 @@ node_modules/
 screenshots/
 reports/
 .DS_Store
+.obsidian
